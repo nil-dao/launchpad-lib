@@ -25,26 +25,12 @@ const randomGenerator = (seed) => {
 
 const randomSeed = (size = 64) => [...Array(size)].map(() => Math.floor(Math.random() * 16).toString(16)).join('')
 
-const getMetadata = ({ traits }) => {
-  if (!window.nil || !window.nil.metadata) {
-    throw ('Project metadata not defined')
-  }
-
-  return {
-    ...window.nil.metadata,
-    attributes: Object.entries(traits).map(([key, value]) => ({
-      trait_type: key,
-      value
-    })),
-  }
-}
-
-const render = (computeTraits, renderImage) => {
+const nil = () => {
   const params = new Proxy(new URLSearchParams(window.location.search), {
     get: (searchParams, prop) => searchParams.get(prop),
   })
 
-  const { nilSeed, metadata, preview } = params
+  const { nilSeed, preview } = params
 
   // Randomise seed
   const seed = nilSeed || (preview ? randomSeed() : null)
@@ -53,20 +39,49 @@ const render = (computeTraits, renderImage) => {
     throw ('seed not defined')
   }
 
-  // initialize rng
-  const nilRandom = randomGenerator(seed)
+  const random = randomGenerator(seed)
 
-  const traits = computeTraits(nilRandom)
+  const attributes = []
+  
+  const addTrait = (name, traitFunction, randomNumber = random()) => {
+    const value = traitFunction(randomNumber)
+    attributes.push({
+      trait_type: name,
+      value
+    })
 
-  // render inside body
-  const container = document.querySelector('body')
-
-  // Routing to display metadata
-  if (metadata) {
-    container.innerHTML = JSON.stringify(getMetadata({ traits }))
-  } else {
-    renderImage(nilRandom, traits)
+    return value
   }
+
+  const addTraits = (names, functions) => {
+    if (typeof functions === Function) {
+      return addTrait(names, functions)
+    }
+    if (names.size != functions.size) {
+      throw('Provide names for all the trait functions. Both arrays should have the same length.')
+    }
+
+    const randomNumber = random()
+    return names.map((name, idx) => addTrait(name, functions[idx], randomNumber))
+  }
+
+  const renderMetadata = () => {
+    if (!window.nil || !window.nil.metadata) {
+      throw ('Project metadata not defined')
+    }
+
+    const metadata = {
+      ...window.nil.metadata,
+      attributes,
+    }
+
+    const meta = document.createElement('meta');
+    meta.name = "nil-metadata";
+    meta.content = JSON.stringify(metadata);
+    document.getElementsByTagName('head')[0].appendChild(meta);
+  }
+
+  return { random, addTraits, renderMetadata }
 }
 
-export { render }
+export { nil }
