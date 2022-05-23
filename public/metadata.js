@@ -11,4 +11,5 @@ if (window.nil === undefined) {
 window.nil.metadata = {
   name: 'default',
   author: 'default',
+  ratio: 4/3,
 }

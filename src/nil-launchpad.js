@@ -25,63 +25,109 @@ const randomGenerator = (seed) => {
 
 const randomSeed = (size = 64) => [...Array(size)].map(() => Math.floor(Math.random() * 16).toString(16)).join('')
 
-const nil = () => {
-  const params = new Proxy(new URLSearchParams(window.location.search), {
-    get: (searchParams, prop) => searchParams.get(prop),
-  })
+/**
+* fitInBox
+* Constrains a box (width x height) to fit in a containing box (maxWidth x maxHeight), preserving the aspect ratio
+* @param maxWidth   width of the containing box
+* @param maxHeight  height of the containing box
+* @param ratio
+* @return           {width, height} of the resized box
+*/
+const fitInBox = (maxWidth, maxHeight, ratio) => {
+  let viewportRatio = maxWidth / maxHeight,
+    width  = 0,
+    height = 0
 
-  const { nilSeed, preview } = params
-
-  // Randomise seed
-  const seed = nilSeed || (preview ? randomSeed() : null)
-
-  if (!seed) {
-    throw ('seed not defined')
+  if (ratio == undefined || ratio == null || ratio == 0) {
+    width = maxWidth
+    height = maxHeight
+  } else if (ratio <= viewportRatio) {
+    height = maxHeight
+    width = Math.floor(height * ratio)
+  } else {
+    width = maxWidth
+    height = Math.floor(width / ratio)
   }
 
-  const random = randomGenerator(seed)
-
-  const attributes = []
-  
-  const addTrait = (name, traitFunction, randomNumber = random()) => {
-    const value = traitFunction(randomNumber)
-    attributes.push({
-      trait_type: name,
-      value
-    })
-
-    return value
+  return {
+    width: width,
+    height: height
   }
-
-  const addTraits = (names, functions) => {
-    if (typeof functions === Function) {
-      return addTrait(names, functions)
-    }
-    if (names.size != functions.size) {
-      throw('Provide names for all the trait functions. Both arrays should have the same length.')
-    }
-
-    const randomNumber = random()
-    return names.map((name, idx) => addTrait(name, functions[idx], randomNumber))
-  }
-
-  const renderMetadata = () => {
-    if (!window.nil || !window.nil.metadata) {
-      throw ('Project metadata not defined')
-    }
-
-    const metadata = {
-      ...window.nil.metadata,
-      attributes,
-    }
-
-    const meta = document.createElement('meta');
-    meta.name = "nil-metadata";
-    meta.content = JSON.stringify(metadata);
-    document.getElementsByTagName('head')[0].appendChild(meta);
-  }
-
-  return { random, addTraits, renderMetadata }
 }
 
-export { nil }
+const getDimensions = () => {
+  const maxWidth = document.body.clientWidth
+  const body = document.body,
+    html = document.documentElement
+  const maxHeight = Math.max(
+    body.scrollHeight,
+    body.offsetHeight,
+    html.clientHeight,
+    html.scrollHeight,
+    html.offsetHeight
+  )
+
+  const { ratio } = getMetadata()
+
+  return fitInBox(maxWidth, maxHeight, ratio)
+}
+
+const params = new Proxy(new URLSearchParams(window.location.search), {
+  get: (searchParams, prop) => searchParams.get(prop),
+})
+
+const { nilSeed, preview } = params
+
+// Randomise seed
+const seed = nilSeed || (preview ? randomSeed() : null)
+
+if (!seed) {
+  throw ('seed not defined')
+}
+
+const random = randomGenerator(seed)
+
+const attributes = []
+
+const addTrait = (name, traitFunction, randomNumber = random()) => {
+  const value = traitFunction(randomNumber)
+  attributes.push({
+    trait_type: name,
+    value
+  })
+
+  return value
+}
+
+const addTraits = (names, functions) => {
+  if (typeof functions === Function) {
+    return addTrait(names, functions)
+  }
+  if (names.size != functions.size) {
+    throw('Provide names for all the trait functions. Both arrays should have the same length.')
+  }
+
+  const randomNumber = random()
+  return names.map((name, idx) => addTrait(name, functions[idx], randomNumber))
+}
+
+const getMetadata = () => {
+  if (!window.nil || !window.nil.metadata) {
+    throw "Project metadata not defined"
+  }
+
+  return {
+    ...window.nil.metadata,
+    attributes,
+  }
+}
+
+const renderMetadata = () => {
+  const metadata = getMetadata()
+  const meta = document.createElement('meta')
+  meta.name = "nil-metadata"
+  meta.content = JSON.stringify(metadata)
+  document.getElementsByTagName('head')[0].appendChild(meta)
+}
+
+export { random, addTraits, renderMetadata, getDimensions }

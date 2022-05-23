@@ -1,7 +1,5 @@
-import { nil } from './nil-launchpad.js'
+import * as context from "./nil-launchpad.js"
 import p5 from 'p5'
-
-const context = nil()
 
 /**
  * Define your project traits (optional)
@@ -53,14 +51,15 @@ context.renderMetadata()
 /**
  * Define your rendering logic
  */
-const width = document.body.clientWidth
-const body = document.body,
-      html = document.documentElement
-const height = Math.max(body.scrollHeight, body.offsetHeight,
-                        html.clientHeight, html.scrollHeight, html.offsetHeight)
 const margin = 25
 
+window.windowResized = () => {
+  const { width, height } = context.getDimensions()
+  resizeCanvas(width, height)
+}
+
 window.setup = () => {
+  const { width, height } = context.getDimensions()
   createCanvas(width, height)
   noLoop()
   strokeWeight(2)
