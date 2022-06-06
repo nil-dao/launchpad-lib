@@ -130,4 +130,4 @@ const renderMetadata = () => {
   document.getElementsByTagName('head')[0].appendChild(meta)
 }
 
-export { random, addTraits, renderMetadata, getDimensions }
+export { random, addTraits, addTrait,renderMetadata, getDimensions }
