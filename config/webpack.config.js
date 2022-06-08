@@ -5,17 +5,15 @@ const HtmlWebpackPlugin = require("html-webpack-plugin")
 module.exports = {
   entry: "./src/index.js",
   output: {
-    path: path.resolve(__dirname, "../dist"),
+    path: path.resolve(__dirname, "../dist/project"),
     filename: "bundle.js",
     clean: true
   },
   module: {
-    rules: [
-      {
-        test: /\.css$/i,
-        use: ["style-loader", "css-loader"],
-      },
-    ],
+    rules: [{
+      test: /\.css$/i,
+      use: ["style-loader", "css-loader"],
+    }, ],
   },
   plugins: [
     new HtmlWebpackPlugin({
