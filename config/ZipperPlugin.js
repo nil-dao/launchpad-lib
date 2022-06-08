@@ -27,7 +27,7 @@ class ZipperPlugin {
       (stats, callback) => {
         const outputPath = stats.compilation.outputOptions.path
         const zip = new AdmZip()
-        zip.addLocalFolder(outputPath)
+        zip.addLocalFolder(path.resolve(outputPath, "../"))
         zip.toBuffer()
         zip.writeZip(this.options.outputPath)
         callback()
