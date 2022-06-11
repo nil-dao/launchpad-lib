@@ -127,11 +127,11 @@ const addTrait = (name, traitFunction, randomNumber = random()) => {
 }
 
 /**
- * Add multiple traits at once using sharing same random number to generate traits.
+ * Add multiple traits at once sharing same random number to generate trait values.
  * 
  * @param {string[]} names 
  * @param {Trait[]} functions 
- * @returns array of return values from trait functions
+ * @returns array of trait values from trait functions
  */
 const addTraits = (names, functions) => {
   if (names.size != functions.size) {
