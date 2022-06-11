@@ -26,13 +26,13 @@ const randomGenerator = (seed) => {
 const randomSeed = (size = 64) => [...Array(size)].map(() => Math.floor(Math.random() * 16).toString(16)).join('')
 
 /**
-* fitInBox
-* Constrains a box (width x height) to fit in a containing box (maxWidth x maxHeight), preserving the aspect ratio
-* @param maxWidth   width of the containing box
-* @param maxHeight  height of the containing box
-* @param ratio
-* @return           {width, height} of the resized box
-*/
+ * Constrains a box (width x height) to fit in a containing box (maxWidth x maxHeight), preserving the aspect ratio
+ * 
+ * @param maxWidth   width of the containing box
+ * @param maxHeight  height of the containing box
+ * @param ratio
+ * @return           { width, height } of the resized box
+ */
 const fitInBox = (maxWidth, maxHeight, ratio) => {
   let viewportRatio = maxWidth / maxHeight,
     width  = 0,
@@ -55,6 +55,9 @@ const fitInBox = (maxWidth, maxHeight, ratio) => {
   }
 }
 
+/**
+ * @returns maximal visible dimentions for canvas rendering
+ */
 const getDimensions = () => {
   const maxWidth = document.body.clientWidth
   const body = document.body,
@@ -76,19 +79,43 @@ const params = new Proxy(new URLSearchParams(window.location.search), {
   get: (searchParams, prop) => searchParams.get(prop),
 })
 
-const { nilSeed, preview } = params
+const { nilSeed, nilseed, preview } = params
+
 
 // Randomise seed
-const seed = nilSeed || (preview ? randomSeed() : null)
+const seed = nilSeed || nilseed || (preview ? randomSeed() : null)
 
 if (!seed) {
   throw ('seed not defined')
 }
 
+/**
+ * Random number source for the project, always use this to guarantee deterministic results based on a seed
+ */
 const random = randomGenerator(seed)
 
 const attributes = []
 
+/**
+ * Function used to generate trait values. For example you can use it to generate colours from a 0..1 random number range. Like:
+ * 
+ * ```
+ * const colourFn = (n) => n > 0.5 ? 'blue' : 'green'
+ * ```
+ * 
+ * @callback Trait
+ * @param {number} randomNumber takes a random number from a project generator
+ * @returns {*} user defined output
+ */
+
+/**
+ * Defines a trait
+ * 
+ * @param {string} name As it will be shown in marketplaces and explorers
+ * @param {Trait} traitFunction user defined trait function
+ * @param {number} randomNumber it's useful only for sharing same random number for multiple traits
+ * @returns return value of the trait function
+ */
 const addTrait = (name, traitFunction, randomNumber = random()) => {
   const value = traitFunction(randomNumber)
   attributes.push({
@@ -99,10 +126,14 @@ const addTrait = (name, traitFunction, randomNumber = random()) => {
   return value
 }
 
+/**
+ * Add multiple traits at once using sharing same random number to generate traits.
+ * 
+ * @param {string[]} names 
+ * @param {Trait[]} functions 
+ * @returns array of return values from trait functions
+ */
 const addTraits = (names, functions) => {
-  if (typeof functions === Function) {
-    return addTrait(names, functions)
-  }
   if (names.size != functions.size) {
     throw('Provide names for all the trait functions. Both arrays should have the same length.')
   }
@@ -122,6 +153,12 @@ const getMetadata = () => {
   }
 }
 
+/**
+ * Rendering metadata
+ * 
+ * Required to be called in a project, because it is rendering metadata for marketplaces compatility.
+ * Without it project won't be able to show any traits
+ */
 const renderMetadata = () => {
   const metadata = getMetadata()
   const meta = document.createElement('meta')
@@ -130,4 +167,4 @@ const renderMetadata = () => {
   document.getElementsByTagName('head')[0].appendChild(meta)
 }
 
-export { random, addTraits, addTrait,renderMetadata, getDimensions }
+export { random, addTraits, addTrait, renderMetadata, getDimensions }
