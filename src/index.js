@@ -34,9 +34,9 @@ const weight = Nil.addTrait('strokeWeight', weightFn)
 /**
  * now weight can be used as a single value for rendering
  * 
- * Sometimes it's useful to generate corelated traits, eg: matching colours
+ * Sometimes it's useful to generate correlated traits, eg: matching colours
  * It's possible to do that by adding these traits together to the Nil generator.
- * In following example we will generate corelated colours for background and lines.
+ * In following example we will generate correlated colours for background and lines.
  * 
  * First define trait functions:
  */
@@ -52,12 +52,11 @@ const backgroundColorFn = (n) => {
 const lineColorFn = (n) => {
   if (n <= 0.1) { // 10%
     return 'green'
-  } else
-    if (n <= 0.3) { // 20%
-      return 'blue'
-    } else { // 70%
-      return 'white'
-    }
+  } else if (n <= 0.3) { // 20%
+    return 'blue'
+  } else { // 70%
+    return 'white'
+  }
 }
 
 /**
