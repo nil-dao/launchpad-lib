@@ -9,7 +9,7 @@ if (window.nil === undefined) {
 }
 
 window.nil.metadata = {
-  name: 'default',
-  author: 'default',
-  ratio: 4/3,
+  name: 'lines',
+  author: 'anon',
+  ratio: 1,
 }
