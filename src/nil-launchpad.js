@@ -1,6 +1,9 @@
 const randomGenerator = (seed) => {
-  // TODO: validate seed length
-  const hashes = seed.match(/.{1,16}/g).map(r => parseInt(r, 16))
+  const sanitizedSeed = seed.replace('0x', '')
+  if (sanitizedSeed.length != 64) {
+    throw ('wrong seed length')
+  }
+  const hashes = sanitizedSeed.match(/.{1,16}/g).map(r => parseInt(r, 16))
   const sfc32 = (a, b, c, d) => {
     return () => {
       a >>>= 0; b >>>= 0; c >>>= 0; d >>>= 0;
