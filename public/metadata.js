@@ -11,5 +11,5 @@ if (window.nil === undefined) {
 window.nil.metadata = {
   name: 'lines',
   author: 'anon',
-  ratio: 1,
+  aspect_ratio: '4:3',
 }
