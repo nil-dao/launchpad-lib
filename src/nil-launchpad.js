@@ -73,8 +73,15 @@ const getDimensions = () => {
     html.offsetHeight
   )
 
-  const { ratio } = getMetadata()
+ const {
+    aspect_ratio
+  } = getMetadata()
 
+  let [
+    width,
+    height
+  ] = aspect_ratio.split(":")
+  let ratio = parseInt(width)/parseInt(height)
   return fitInBox(maxWidth, maxHeight, ratio)
 }
 
